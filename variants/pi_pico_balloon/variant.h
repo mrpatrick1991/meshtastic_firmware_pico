@@ -16,10 +16,10 @@
 // Expecting the Waveshare Pico GPS hat
 #define HAS_GPS 1
 
-// Enable OLED Screen
-#define HAS_SCREEN 1
-#define USE_SH1106 1
-#define RESET_OLED 13
+// Disable OLED Screen
+#define HAS_SCREEN 0
+#define USE_SH1106 0
+#define RESET_OLED -1
 
 // Redefine I2C0 pins to avoid collision with UART1/Serial2.
 #define I2C_SDA 8
@@ -31,9 +31,9 @@
 // Waveshare UPS-A/B uses a 0.01 Ohm shunt for the INA219 sensor
 #define INA219_MULTIPLIER 10.0f
 
-// Waveshare Pico GPS L76B pins:
-#define GPS_RX_PIN 1
-#define GPS_TX_PIN 0
+// Traquito atgm 336h GPS 
+#define GPS_RX_PIN 9
+#define GPS_TX_PIN 8
 
 // Wakeup from backup mode
 // #define PIN_GPS_FORCE_ON 14
