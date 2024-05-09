@@ -5,15 +5,15 @@
 
 #ifdef RP2040_SLOW_CLOCK
 // Redefine UART1 serial log output to avoid collision with UART0 for GPS.
-#define SERIAL2_TX 4
-#define SERIAL2_RX 5
+#define SERIAL2_TX -1
+#define SERIAL2_RX -1
 // Reroute log output in SensorLib when USB is not available
 #define log_e(...) Serial2.printf(__VA_ARGS__)
 #define log_i(...) Serial2.printf(__VA_ARGS__)
 #define log_d(...) Serial2.printf(__VA_ARGS__)
 #endif
 
-// Expecting the Waveshare Pico GPS hat
+// Traquito board has a GPS
 #define HAS_GPS 1
 
 // Disable OLED Screen
@@ -22,16 +22,17 @@
 #define RESET_OLED -1
 
 // Redefine I2C0 pins to avoid collision with UART1/Serial2.
-#define I2C_SDA 8
-#define I2C_SCL 9
+#define I2C_SDA -1
+#define I2C_SCL -1
 
 // Redefine Waveshare UPS-A/B I2C_1 pins:
-#define I2C_SDA1 6
-#define I2C_SCL1 7
-// Waveshare UPS-A/B uses a 0.01 Ohm shunt for the INA219 sensor
-#define INA219_MULTIPLIER 10.0f
+#define I2C_SDA1 -1
+#define I2C_SCL1 -1
 
-// Traquito atgm 336h GPS 
+// no INA219
+#undef INA219_MULTIPLIER 
+
+// Traquito ATGM 336H GPS 
 #define GPS_RX_PIN 9
 #define GPS_TX_PIN 8
 
@@ -39,25 +40,12 @@
 // #define PIN_GPS_FORCE_ON 14
 // No GPS reset available
 #undef PIN_GPS_RESET
-/*
- * For PPS output the resistor R20 needs to be populated with 0 Ohm
- * on the Waveshare Pico GPS board.
- */
 #undef PIN_GPS_PPS // no PPS
-/*
- * For standby mode switching the resistor R18 needs to be populated
- * with 0 Ohm on the Waveshare Pico GPS board.
- */
-#define PIN_GPS_STANDBY 17
 
-#define BUTTON_PIN 18
-#define EXT_NOTIFY_OUT 22
+// Traquito GPS reset must be turned high impedence to enable GPS
+#define PIN_GPS_STANDBY 6
+
 #define LED_PIN PIN_LED
-
-#define BATTERY_PIN 26
-// ratio of voltage divider = 3.0 (R17=200k, R18=100k)
-#define ADC_MULTIPLIER 3.1 // 3.0 + a bit for being optimistic
-#define BATTERY_SENSE_RESOLUTION_BITS ADC_RESOLUTION
 
 #undef USE_SX1262 // RFM98 module is SX127x
 
