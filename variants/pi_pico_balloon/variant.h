@@ -12,8 +12,8 @@
 #define BATTERY_SENSE_RESOLUTION_BITS ADC_RESOLUTION
 #define BATTERY_PIN -1
 
-#define GPS_RX_PIN 6
-#define GPS_TX_PIN 7
+#define GPS_RX_PIN 9
+#define GPS_TX_PIN 8
 
 #undef USE_SX126X
 #define USE_RF95
@@ -28,7 +28,7 @@
 #define LORA_MOSI 11
 #define LORA_CS 3
 
-#define LORA_RESET 15
+#define LORA_RESET RADIOLIB_NC
 #define LORA_DIO0 20
 #define LORA_DIO1 RADIOLIB_NC
 #define LORA_DIO2 2
