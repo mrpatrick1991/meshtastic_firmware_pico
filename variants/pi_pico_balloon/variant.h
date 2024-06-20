@@ -12,8 +12,13 @@
 #define BATTERY_SENSE_RESOLUTION_BITS ADC_RESOLUTION
 #define BATTERY_PIN -1
 
+#define GPS_DEBUG
+#define RPI_PICO_WAVESHARE
+#define HAS_GPS 1
+#define PIN_GPS_EN 6
 #define GPS_RX_PIN 9
 #define GPS_TX_PIN 8
+#define GPS_BAUDRATE 9600
 
 #undef USE_SX126X
 #define USE_RF95
