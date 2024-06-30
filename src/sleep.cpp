@@ -231,11 +231,9 @@ void doDeepSleep(uint32_t msecToWake, bool skipPreflight = false)
 
     nodeDB->saveToDisk();
 
-#ifdef TTGO_T_ECHO
 #ifdef PIN_POWER_EN
     pinMode(PIN_POWER_EN, INPUT); // power off peripherals
     // pinMode(PIN_POWER_EN1, INPUT_PULLDOWN);
-#endif
 #endif
 #if HAS_GPS
     // Kill GPS power completely (even if previously we just had it in sleep mode)
@@ -264,7 +262,11 @@ void doDeepSleep(uint32_t msecToWake, bool skipPreflight = false)
 #ifdef BUTTON_PIN
     // Avoid leakage through button pin
     if (GPIO_IS_VALID_OUTPUT_GPIO(BUTTON_PIN)) {
+#ifdef BUTTON_NEED_PULLUP
+        pinMode(BUTTON_PIN, INPUT_PULLUP);
+#else
         pinMode(BUTTON_PIN, INPUT);
+#endif
         gpio_hold_en((gpio_num_t)BUTTON_PIN);
     }
 #endif

@@ -41,7 +41,11 @@ ButtonThread::ButtonThread() : OSThread("Button")
     }
 #elif defined(BUTTON_PIN)
     int pin = config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN; // Resolved button pin
+#if defined(HELTEC_CAPSULE_SENSOR_V3)
+    this->userButton = OneButton(pin, false, false);
+#else
     this->userButton = OneButton(pin, true, true);
+#endif
     LOG_DEBUG("Using GPIO%02d for button\n", pin);
 #endif
 
@@ -52,8 +56,8 @@ ButtonThread::ButtonThread() : OSThread("Button")
 
 #if defined(BUTTON_PIN) || defined(ARCH_PORTDUINO)
     userButton.attachClick(userButtonPressed);
-    userButton.setClickMs(250);
-    userButton.setPressMs(c_longPressTime);
+    userButton.setClickMs(BUTTON_CLICK_MS);
+    userButton.setPressMs(BUTTON_LONGPRESS_MS);
     userButton.setDebounceMs(1);
     userButton.attachDoubleClick(userButtonDoublePressed);
     userButton.attachMultiClick(userButtonMultiPressed, this); // Reference to instance: get click count from non-static OneButton
@@ -70,8 +74,8 @@ ButtonThread::ButtonThread() : OSThread("Button")
     pinMode(BUTTON_PIN_ALT, INPUT_PULLUP_SENSE);
 #endif
     userButtonAlt.attachClick(userButtonPressed);
-    userButtonAlt.setClickMs(250);
-    userButtonAlt.setPressMs(c_longPressTime);
+    userButtonAlt.setClickMs(BUTTON_CLICK_MS);
+    userButtonAlt.setPressMs(BUTTON_LONGPRESS_MS);
     userButtonAlt.setDebounceMs(1);
     userButtonAlt.attachDoubleClick(userButtonDoublePressed);
     userButtonAlt.attachLongPressStart(userButtonPressedLongStart);
@@ -80,7 +84,7 @@ ButtonThread::ButtonThread() : OSThread("Button")
 
 #ifdef BUTTON_PIN_TOUCH
     userButtonTouch = OneButton(BUTTON_PIN_TOUCH, true, true);
-    userButtonTouch.setPressMs(400);
+    userButtonTouch.setPressMs(BUTTON_TOUCH_MS);
     userButtonTouch.attachLongPressStart(touchPressedLongStart); // Better handling with longpress than click?
 #endif
 
@@ -177,8 +181,9 @@ int32_t ButtonThread::runOnce()
         case BUTTON_EVENT_LONG_PRESSED: {
             LOG_BUTTON("Long press!\n");
             powerFSM.trigger(EVENT_PRESS);
-            if (screen)
-                screen->startShutdownScreen();
+            if (screen) {
+                screen->startAlert("Shutting down...");
+            }
             playBeep();
             break;
         }
@@ -232,10 +237,10 @@ void ButtonThread::attachButtonInterrupts()
     attachInterrupt(
         config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN,
         []() {
-            BaseType_t higherWake = 0;
-            mainDelay.interruptFromISR(&higherWake);
             ButtonThread::userButton.tick();
             runASAP = true;
+            BaseType_t higherWake = 0;
+            mainDelay.interruptFromISR(&higherWake);
         },
         CHANGE);
 #endif
