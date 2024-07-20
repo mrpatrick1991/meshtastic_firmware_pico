@@ -23,11 +23,7 @@
 #define GPS_RESET_MODE HIGH
 #endif
 
-#if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO)
 HardwareSerial *GPS::_serial_gps = &Serial1;
-#else
-HardwareSerial *GPS::_serial_gps = NULL;
-#endif
 
 GPS *gps = nullptr;
 
@@ -398,7 +394,8 @@ int GPS::getACK(uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t 
 bool GPS::setup()
 {
     int msglen = 0;
-
+    gnssModel = GNSS_MODEL_ATGM336H;
+    return(true);
     if (!didSerialInit) {
 #if !defined(GPS_UC6580)
 
@@ -459,6 +456,9 @@ bool GPS::setup()
             delay(250);
         } else if (gnssModel == GNSS_MODEL_ATGM336H) {
             // Set the intial configuration of the device - these _should_ work for most AT6558 devices
+            
+            // makeCASPacket segfaults on the rp2040.
+            /*
             msglen = makeCASPacket(0x06, 0x07, sizeof(_message_CAS_CFG_NAVX_CONF), _message_CAS_CFG_NAVX_CONF);
             _serial_gps->write(UBXscratch, msglen);
             if (getACKCas(0x06, 0x07, 250) != GNSS_RESPONSE_OK) {
@@ -483,7 +483,7 @@ bool GPS::setup()
                 if (getACKCas(0x06, 0x01, 250) != GNSS_RESPONSE_OK) {
                     LOG_WARN("ATGM336H - Could not enable NMEA MSG: %d\n", fields[i]);
                 }
-            }
+            }*/
         } else if (gnssModel == GNSS_MODEL_UC6580) {
             // The Unicore UC6580 can use a lot of sat systems, enable it to
             // use GPS L1 & L5 + BDS B1I & B2a + GLONASS L1 + GALILEO E1 & E5a + SBAS
@@ -1449,9 +1449,9 @@ bool GPS::factoryReset()
         _serial_gps->write("$PCAS10,3*1F\r\n");
         delay(100);
     } else if (gnssModel == GNSS_MODEL_ATGM336H) {
-        LOG_INFO("Factory Reset via CAS-CFG-RST\n");
-        uint8_t msglen = makeCASPacket(0x06, 0x02, sizeof(_message_CAS_CFG_RST_FACTORY), _message_CAS_CFG_RST_FACTORY);
-        _serial_gps->write(UBXscratch, msglen);
+        LOG_INFO("Factory Reset via CAS-CFG-RST but forget that, it segfaults.\n");
+        //uint8_t msglen = makeCASPacket(0x06, 0x02, sizeof(_message_CAS_CFG_RST_FACTORY), _message_CAS_CFG_RST_FACTORY);
+        //_serial_gps->write(UBXscratch, msglen);
         delay(100);
     } else {
         // fire this for good measure, if we have an L76B - won't harm other devices.
