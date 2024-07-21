@@ -178,7 +178,7 @@ _meshtastic_Config_LoRaConfig_RegionCode Lorawan_Geofence_position(float latitud
 			}
 			//China (Not supported)			
 			else if(pointInPolygonF(12, ChinaF, latitude, longitude) == 1)		{			
-                return(meshtastic_Config_LoRaConfig_RegionCode_ANZ);
+                return(meshtastic_Config_LoRaConfig_RegionCode_CN);
 			}
 			//Mongolia
 			else if(pointInPolygonF(10, MongoliaF, latitude, longitude) == 1)		{			
