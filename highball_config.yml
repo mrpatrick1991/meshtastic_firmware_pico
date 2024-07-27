@@ -17,7 +17,7 @@ config:
     region: US
     sx126xRxBoostedGain: true
     txEnabled: true
-    txPower: 30
+    txPower: 10
     usePreset: true
   network:
     ntpServer: meshtastic.pool.ntp.org
