@@ -1063,7 +1063,7 @@ void loop()
         _meshtastic_Config_LoRaConfig_RegionCode current_gps_region_code = Lorawan_Geofence_position(gpsStatus->getLatitude()*1e-7, gpsStatus->getLongitude()*1e-7);
         if (current_gps_region_code != config.lora.region){
             LOG_INFO("GPS has a lock and is connected, checking region code.\n");
-            LOG_INFO("GPS suggests we use region code: ");
+            LOG_INFO("GPS suggests that we use region code: ");
             Serial.println(current_gps_region_code);
             config.lora.region = current_gps_region_code;
             LOG_INFO("region code set, is now: ");
