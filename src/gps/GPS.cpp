@@ -23,8 +23,7 @@
 #define GPS_RESET_MODE HIGH
 #endif
 
-HardwareSerial *GPS::_serial_gps = &Serial1;
-
+HardwareSerial *GPS::_serial_gps = &Serial2;
 GPS *gps = nullptr;
 
 GPSUpdateScheduling scheduling;
@@ -393,6 +392,10 @@ int GPS::getACK(uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t 
 
 bool GPS::setup()
 {
+    pinMode(2, OUTPUT);
+    digitalWrite(2, LOW);
+    pinMode(6, INPUT);
+
     int msglen = 0;
     gnssModel = GNSS_MODEL_ATGM336H;
     return(true);
@@ -839,19 +842,19 @@ void GPS::setPowerState(GPSPowerState newState, uint32_t sleepTime)
 void GPS::writePinEN(bool on)
 {
     // Abort: if conflict with Canned Messages when using Wisblock(?)
-    if (HW_VENDOR == meshtastic_HardwareModel_RAK4631 && (rotaryEncoderInterruptImpl1 || upDownInterruptImpl1))
+    /*if (HW_VENDOR == meshtastic_HardwareModel_RAK4631 && (rotaryEncoderInterruptImpl1 || upDownInterruptImpl1))
         return;
 
     // Abort: if pin unset
     if (!en_gpio)
         return;
-
+*/
     // Determine new value for the pin
     bool val = GPS_EN_ACTIVE ? on : !on;
 
     // Write and log
-    pinMode(en_gpio, OUTPUT);
-    digitalWrite(en_gpio, val);
+    //pinMode(en_gpio, INPUT);
+    //digitalWrite(en_gpio, val);
 #ifdef GPS_EXTRAVERBOSE
     LOG_DEBUG("Pin EN %s\n", val == HIGH ? "HIGH" : "LOW");
 #endif
@@ -1322,10 +1325,7 @@ GPS *GPS::createGps()
     int8_t _rx_gpio = config.position.rx_gpio;
     int8_t _tx_gpio = config.position.tx_gpio;
     int8_t _en_gpio = config.position.gps_en_gpio;
-#if HAS_GPS && !defined(ARCH_ESP32)
-    _rx_gpio = 1; // We only specify GPS serial ports on ESP32. Otherwise, these are just flags.
-    _tx_gpio = 1;
-#endif
+
 #if defined(GPS_RX_PIN)
     if (!_rx_gpio)
         _rx_gpio = GPS_RX_PIN;

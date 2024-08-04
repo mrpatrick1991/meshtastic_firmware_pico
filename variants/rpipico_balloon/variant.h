@@ -22,8 +22,10 @@
 #define LORA_DIO3 RADIOLIB_NC
 
 #define HAS_GPS 1
-#define GPS_RX_PIN 1
-#define GPS_TX_PIN 0
+#define GPS_RX_PIN 9
+#define GPS_TX_PIN 8
+#define PIN_GPS_EN 2
+#define GPS_EN_ACTIVE LOW
 
 #define GPS_EXTRAVERBOSE 1
 #define GPS_DEBUG 1

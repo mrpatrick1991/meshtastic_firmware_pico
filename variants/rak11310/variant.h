@@ -48,3 +48,9 @@
 #define SX126X_DIO2_AS_RF_SWITCH
 #define SX126X_DIO3_TCXO_VOLTAGE 1.8
 #endif
+
+// GPS
+#define HAS_GPS 1
+
+#define GPS_EXTRAVERBOSE 1
+#define GPS_DEBUG 1

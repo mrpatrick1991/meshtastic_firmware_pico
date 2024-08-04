@@ -7,13 +7,13 @@ config:
     mode: FIXED_PIN
   device:
     disableTripleClick: true
-    nodeInfoBroadcastSecs: 3600
+    nodeInfoBroadcastSecs: 300
     serialEnabled: true
   display:
     screenOnSecs: 600
   lora:
     ignoreMqtt: true
-    overrideDutyCycle: true
+    overrideDutyCycle: false
     region: US
     sx126xRxBoostedGain: true
     txEnabled: true
@@ -22,6 +22,7 @@ config:
   network:
     ntpServer: meshtastic.pool.ntp.org
   position:
+    broadcastSmartEnabled: 0
     broadcastSmartMinimumDistance: 100
     broadcastSmartMinimumIntervalSecs: 30
     gpsMode: ENABLED

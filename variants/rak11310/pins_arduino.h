@@ -31,6 +31,7 @@ static const uint8_t A3 = PIN_A3;
 #define ADC_RESOLUTION 12
 
 // Serial
+
 #define PIN_SERIAL1_TX (0ul)
 #define PIN_SERIAL1_RX (1ul)
 
@@ -66,3 +67,4 @@ static const uint8_t SCK = PIN_SPI0_SCK;
 
 static const uint8_t SDA = PIN_WIRE0_SDA;
 static const uint8_t SCL = PIN_WIRE0_SCL;
+
