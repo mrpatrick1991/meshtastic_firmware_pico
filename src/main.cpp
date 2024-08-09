@@ -39,6 +39,8 @@
 #include <memory>
 #include <utility>
 // #include <driver/rtc_io.h>
+#include "LightTrackerGeofence.h"
+
 
 #ifdef ARCH_ESP32
 #if !MESHTASTIC_EXCLUDE_WEBSERVER
@@ -230,6 +232,7 @@ void printInfo()
 
 void setup()
 {
+    delay(3000);
     concurrency::hasBeenSetup = true;
 #if ARCH_PORTDUINO
     SPISettings spiSettings(settingsMap[spiSpeed], MSBFIRST, SPI_MODE0);
@@ -1087,6 +1090,22 @@ void loop()
     // handleWebResponse();
 
     service->loop();
+
+    // set the region code dynamically based on the GPS location here.
+    
+    if (gpsStatus->getIsConnected() && gpsStatus->getHasLock()) {
+        meshtastic_Config_LoRaConfig_RegionCode current_gps_region_code = Lorawan_Geofence_position(gpsStatus->getLatitude()*1e-7, gpsStatus->getLongitude()*1e-7);
+        if (current_gps_region_code != config.lora.region){
+            LOG_INFO("GPS has a lock and is connected, checking region code.\n");
+            LOG_INFO("GPS suggests that we use region code: ");
+            Serial.println(current_gps_region_code);
+            config.lora.region = current_gps_region_code;
+            LOG_INFO("region code set, is now: ");
+            Serial.println(config.lora.region);
+            LOG_INFO("mesh service reloading config.\n");
+            service->reloadConfig(SEGMENT_CONFIG);
+        }
+    }
 
     long delayMsec = mainController.runOrDelay();
 
