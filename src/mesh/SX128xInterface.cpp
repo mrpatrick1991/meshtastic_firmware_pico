@@ -1,3 +1,5 @@
+#ifndef ARCH_STM32WL
+
 #include "SX128xInterface.h"
 #include "configuration.h"
 #include "error.h"
@@ -336,3 +338,4 @@ template <typename T> bool SX128xInterface<T>::sleep()
 
     return true;
 }
+#endif

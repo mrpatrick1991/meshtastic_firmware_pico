@@ -25,6 +25,8 @@
 
 #if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO)
 HardwareSerial *GPS::_serial_gps = &Serial1;
+#elif defined(USE_STM32WLx)
+HardwareSerial *GPS::_serial_gps = &Serial2;
 #else
 HardwareSerial *GPS::_serial_gps = NULL;
 #endif

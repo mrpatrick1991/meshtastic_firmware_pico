@@ -69,6 +69,7 @@ NRF52Bluetooth *nrf52Bluetooth = nullptr;
 #include "mqtt/MQTT.h"
 #endif
 
+#ifndef ARCH_STM32WL
 #include "LLCC68Interface.h"
 #include "LR1110Interface.h"
 #include "LR1120Interface.h"
@@ -76,8 +77,9 @@ NRF52Bluetooth *nrf52Bluetooth = nullptr;
 #include "SX1262Interface.h"
 #include "SX1268Interface.h"
 #include "SX1280Interface.h"
-#include "detect/LoRaRadioType.h"
+#endif
 
+#include "detect/LoRaRadioType.h"
 #ifdef ARCH_STM32WL
 #include "STM32WLE5JCInterface.h"
 #endif
