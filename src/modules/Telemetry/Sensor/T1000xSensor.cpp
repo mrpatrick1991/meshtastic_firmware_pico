@@ -108,9 +108,6 @@ float T1000xSensor::getTemp()
 
 bool T1000xSensor::getMetrics(meshtastic_Telemetry *measurement)
 {
-    measurement->variant.environment_metrics.has_temperature = true;
-    measurement->variant.environment_metrics.has_lux = true;
-
     measurement->variant.environment_metrics.temperature = getTemp();
     measurement->variant.environment_metrics.lux = getLux();
     return true;

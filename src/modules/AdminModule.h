@@ -25,9 +25,6 @@ class AdminModule : public ProtobufModule<meshtastic_AdminMessage>, public Obser
   private:
     bool hasOpenEditTransaction = false;
 
-    uint8_t session_passkey[8] = {0};
-    uint session_time = 0;
-
     void saveChanges(int saveWhat, bool shouldReboot = true);
 
     /**
@@ -51,12 +48,6 @@ class AdminModule : public ProtobufModule<meshtastic_AdminMessage>, public Obser
     void handleSetChannel();
     void handleSetHamMode(const meshtastic_HamParameters &req);
     void reboot(int32_t seconds);
-
-    void setPassKey(meshtastic_AdminMessage *res);
-    bool checkPassKey(meshtastic_AdminMessage *res);
-
-    bool messageIsResponse(meshtastic_AdminMessage *r);
-    bool messageIsRequest(meshtastic_AdminMessage *r);
 };
 
 extern AdminModule *adminModule;

@@ -126,7 +126,7 @@ extern "C" {
 #define VBAT_AR_INTERNAL AR_INTERNAL_3_0
 
 // Buzzer
-#define PIN_BUZZER (0 + 25)
+#define BUZZER_EN_PIN -1
 
 #ifdef __cplusplus
 }

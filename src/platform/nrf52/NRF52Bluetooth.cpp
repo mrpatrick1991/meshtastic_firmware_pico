@@ -198,13 +198,8 @@ void NRF52Bluetooth::shutdown()
 {
     // Shutdown bluetooth for minimum power draw
     LOG_INFO("Disable NRF52 bluetooth\n");
-    uint8_t connection_num = Bluefruit.connected();
-    if (connection_num) {
-        for (uint8_t i = 0; i < connection_num; i++) {
-            LOG_INFO("NRF52 bluetooth disconnecting handle %d\n", i);
-            Bluefruit.disconnect(i);
-        }
-        delay(100); // wait for ondisconnect;
+    if (connectionHandle != 0) {
+        Bluefruit.disconnect(connectionHandle);
     }
     Bluefruit.Advertising.stop();
 }
