@@ -23,4 +23,6 @@ This variant has GPS enabled and expects PA2 / PA3 as the GPS serial pins.
 #define GPS_RX_PIN PA3
 #define GPS_TX_PIN PA2
 
+#undef FSCOM
+
 #endif

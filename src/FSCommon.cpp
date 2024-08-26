@@ -24,6 +24,7 @@ SPIClass SPI1(HSPI);
 
 #endif // HAS_SDCARD
 
+/*
 #if defined(ARCH_STM32WL)
 
 uint16_t OSFS::startOfEEPROM = 1;
@@ -46,7 +47,7 @@ void OSFS::writeNBytes(uint16_t address, unsigned int num, const byte *input)
         input++;
     }
 }
-#endif
+#endif*/
 
 bool lfs_assert_failed =
     false; // Note: we use this global on all platforms, though it can only be set true on nrf52 (in our modified lfs_util.h)
@@ -66,6 +67,7 @@ extern "C" void lfs_assert(const char *reason)
  */
 bool copyFile(const char *from, const char *to)
 {
+    /*
 #ifdef ARCH_STM32WL
     unsigned char cbuffer[2048];
 
@@ -91,8 +93,8 @@ bool copyFile(const char *from, const char *to)
         return false;
     }
     return true;
-
-#elif defined(FSCom)
+*/
+#ifdef FSCom
     unsigned char cbuffer[16];
 
     File f1 = FSCom.open(from, FILE_O_READ);
@@ -129,13 +131,14 @@ bool copyFile(const char *from, const char *to)
  */
 bool renameFile(const char *pathFrom, const char *pathTo)
 {
+    /*
 #ifdef ARCH_STM32WL
     if (copyFile(pathFrom, pathTo) && (OSFS::deleteFile(pathFrom) == OSFS::result::NO_ERROR)) {
         return true;
     } else {
         return false;
-    }
-#elif defined(FSCom)
+    }*/
+#ifdef FSCOM
 #ifdef ARCH_ESP32
     // rename was fixed for ESP32 IDF LittleFS in April
     return FSCom.rename(pathFrom, pathTo);

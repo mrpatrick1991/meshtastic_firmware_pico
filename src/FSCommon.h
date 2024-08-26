@@ -14,6 +14,7 @@
 #define FILE_O_READ "r"
 #endif
 
+/*
 #if defined(ARCH_STM32WL)
 // STM32WL series 2 Kbytes (8 rows of 256 bytes)
 #include <EEPROM.h>
@@ -23,7 +24,7 @@
 const OSFS::result noerr = OSFS::result::NO_ERROR;
 const OSFS::result notfound = OSFS::result::FILE_NOT_FOUND;
 #endif
-
+*/
 #if defined(ARCH_RP2040)
 // RP2040
 #include "LittleFS.h"
