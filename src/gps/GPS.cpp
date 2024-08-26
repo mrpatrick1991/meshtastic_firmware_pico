@@ -23,12 +23,13 @@
 #define GPS_RESET_MODE HIGH
 #endif
 
-#if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO)
+#if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO) 
 HardwareSerial *GPS::_serial_gps = &Serial1;
+#elif defined (RP2040_GPS)
+HardwareSerial *GPS::_serial_gps = &Serial2;
 #else
 HardwareSerial *GPS::_serial_gps = NULL;
 #endif
-
 GPS *gps = nullptr;
 
 GPSUpdateScheduling scheduling;
@@ -398,7 +399,9 @@ int GPS::getACK(uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t 
 bool GPS::setup()
 {
     int msglen = 0;
-
+    didSerialInit = true;
+    gnssModel = GNSS_MODEL_ATGM336H;
+    return(true);
     if (!didSerialInit) {
         if (tx_gpio && gnssModel == GNSS_MODEL_UNKNOWN) {
 
@@ -408,7 +411,7 @@ bool GPS::setup()
             }
 
             LOG_DEBUG("Probing for GPS at %d \n", serialSpeeds[speedSelect]);
-            gnssModel = probe(serialSpeeds[speedSelect]);
+            gnssModel = GNSS_MODEL_ATGM336H;
             if (gnssModel == GNSS_MODEL_UNKNOWN) {
                 if (++speedSelect == sizeof(serialSpeeds) / sizeof(int)) {
                     speedSelect = 0;
@@ -459,7 +462,9 @@ bool GPS::setup()
             _serial_gps->write("$PMTK886,1*29\r\n");
             delay(250);
         } else if (gnssModel == GNSS_MODEL_ATGM336H) {
-            // Set the intial configuration of the device - these _should_ work for most AT6558 devices
+                return true;
+
+            /*// Set the intial configuration of the device - these _should_ work for most AT6558 devices
             msglen = makeCASPacket(0x06, 0x07, sizeof(_message_CAS_CFG_NAVX_CONF), _message_CAS_CFG_NAVX_CONF);
             _serial_gps->write(UBXscratch, msglen);
             if (getACKCas(0x06, 0x07, 250) != GNSS_RESPONSE_OK) {
@@ -484,7 +489,7 @@ bool GPS::setup()
                 if (getACKCas(0x06, 0x01, 250) != GNSS_RESPONSE_OK) {
                     LOG_WARN("ATGM336H - Could not enable NMEA MSG: %d\n", fields[i]);
                 }
-            }
+            }*/
         } else if (gnssModel == GNSS_MODEL_UC6580) {
             // The Unicore UC6580 can use a lot of sat systems, enable it to
             // use GPS L1 & L5 + BDS B1I & B2a + GLONASS L1 + GALILEO E1 & E5a + SBAS
@@ -1752,10 +1757,7 @@ bool GPS::whileActive()
 {
     unsigned int charsInBuf = 0;
     bool isValid = false;
-    if (powerState != GPS_ACTIVE) {
-        clearBuffer();
-        return false;
-    }
+
 #ifdef SERIAL_BUFFER_SIZE
     if (_serial_gps->available() >= SERIAL_BUFFER_SIZE - 1) {
         LOG_WARN("GPS Buffer full with %u bytes waiting. Flushing to avoid corruption.\n", _serial_gps->available());
@@ -1767,6 +1769,7 @@ bool GPS::whileActive()
     // First consume any chars that have piled up at the receiver
     while (_serial_gps->available() > 0) {
         int c = _serial_gps->read();
+        Serial.write(c);
         UBXscratch[charsInBuf] = c;
 #ifdef GPS_DEBUG
         LOG_DEBUG("%c", c);

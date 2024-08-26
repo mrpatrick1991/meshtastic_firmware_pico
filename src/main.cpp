@@ -230,6 +230,7 @@ void printInfo()
 
 void setup()
 {
+    delay(2000);
     concurrency::hasBeenSetup = true;
 #if ARCH_PORTDUINO
     SPISettings spiSettings(settingsMap[spiSpeed], MSBFIRST, SPI_MODE0);
