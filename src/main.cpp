@@ -69,7 +69,6 @@ NRF52Bluetooth *nrf52Bluetooth = nullptr;
 #include "mqtt/MQTT.h"
 #endif
 
-#ifndef ARCH_STM32WL
 #include "LLCC68Interface.h"
 #include "LR1110Interface.h"
 #include "LR1120Interface.h"
@@ -77,9 +76,8 @@ NRF52Bluetooth *nrf52Bluetooth = nullptr;
 #include "SX1262Interface.h"
 #include "SX1268Interface.h"
 #include "SX1280Interface.h"
-#endif
-
 #include "detect/LoRaRadioType.h"
+
 #ifdef ARCH_STM32WL
 #include "STM32WLE5JCInterface.h"
 #endif
@@ -112,10 +110,6 @@ AccelerometerThread *accelerometerThread = nullptr;
 #ifdef HAS_I2S
 #include "AudioThread.h"
 AudioThread *audioThread = nullptr;
-#endif
-
-#if defined(TCXO_OPTIONAL)
-float tcxoVoltage = SX126X_DIO3_TCXO_VOLTAGE; // if TCXO is optional, put this here so it can be changed further down.
 #endif
 
 using namespace concurrency;
@@ -233,9 +227,10 @@ void printInfo()
 {
     LOG_INFO("S:B:%d,%s\n", HW_VENDOR, optstr(APP_VERSION));
 }
-#ifndef PIO_UNIT_TESTING
+
 void setup()
 {
+    delay(2000);
     concurrency::hasBeenSetup = true;
 #if ARCH_PORTDUINO
     SPISettings spiSettings(settingsMap[spiSpeed], MSBFIRST, SPI_MODE0);
@@ -300,9 +295,19 @@ void setup()
     digitalWrite(VEXT_ENABLE, 0); // turn on the display power
 #endif
 
+#if defined(VGNSS_CTRL_V03)
+    pinMode(VGNSS_CTRL_V03, OUTPUT);
+    digitalWrite(VGNSS_CTRL_V03, LOW);
+#endif
+
 #if defined(VTFT_CTRL_V03)
     pinMode(VTFT_CTRL_V03, OUTPUT);
     digitalWrite(VTFT_CTRL_V03, LOW);
+#endif
+
+#if defined(VGNSS_CTRL)
+    pinMode(VGNSS_CTRL, OUTPUT);
+    digitalWrite(VGNSS_CTRL, LOW);
 #endif
 
 #if defined(VTFT_CTRL)
@@ -315,14 +320,6 @@ void setup()
     digitalWrite(RESET_OLED, 1);
 #endif
 
-#ifdef SENSOR_POWER_CTRL_PIN
-    pinMode(SENSOR_POWER_CTRL_PIN, OUTPUT);
-    digitalWrite(SENSOR_POWER_CTRL_PIN, SENSOR_POWER_ON);
-#endif
-
-#ifdef SENSOR_GPS_CONFLICT
-    bool sensor_detected = false;
-#endif
 #ifdef PERIPHERAL_WARMUP_MS
     // Some peripherals may require additional time to stabilize after power is connected
     // e.g. I2C on Heltec Vision Master
@@ -462,9 +459,6 @@ void setup()
         LOG_INFO("No I2C devices found\n");
     } else {
         LOG_INFO("%i I2C devices found\n", i2cCount);
-#ifdef SENSOR_GPS_CONFLICT
-        sensor_detected = true;
-#endif
     }
 
 #ifdef ARCH_ESP32
@@ -696,7 +690,6 @@ void setup()
     screen = new graphics::Screen(screen_found, screen_model, screen_geometry);
 
     // setup TZ prior to time actions.
-#if !MESHTASTIC_EXCLUDE_TZ
     if (*config.device.tzdef) {
         setenv("TZ", config.device.tzdef, 1);
     } else {
@@ -704,30 +697,22 @@ void setup()
     }
     tzset();
     LOG_DEBUG("Set Timezone to %s\n", getenv("TZ"));
-#endif
 
     readFromRTC(); // read the main CPU RTC at first (in case we can't get GPS time)
 
 #if !MESHTASTIC_EXCLUDE_GPS
     // If we're taking on the repeater role, ignore GPS
-#ifdef SENSOR_GPS_CONFLICT
-    if (sensor_detected == false) {
-#endif
-        if (HAS_GPS) {
-            if (config.device.role != meshtastic_Config_DeviceConfig_Role_REPEATER &&
-                config.position.gps_mode != meshtastic_Config_PositionConfig_GpsMode_NOT_PRESENT) {
-                gps = GPS::createGps();
-                if (gps) {
-                    gpsStatus->observe(&gps->newStatus);
-                } else {
-                    LOG_DEBUG("Running without GPS.\n");
-                }
+    if (HAS_GPS) {
+        if (config.device.role != meshtastic_Config_DeviceConfig_Role_REPEATER &&
+            config.position.gps_mode != meshtastic_Config_PositionConfig_GpsMode_NOT_PRESENT) {
+            gps = GPS::createGps();
+            if (gps) {
+                gpsStatus->observe(&gps->newStatus);
+            } else {
+                LOG_DEBUG("Running without GPS.\n");
             }
         }
-#ifdef SENSOR_GPS_CONFLICT
     }
-#endif
-
 #endif
 
     nodeStatus->observe(&nodeDB->newStatus);
@@ -896,7 +881,7 @@ void setup()
     }
 #endif
 
-#if defined(USE_SX1262) && !defined(ARCH_PORTDUINO) && !defined(TCXO_OPTIONAL)
+#if defined(USE_SX1262) && !defined(ARCH_PORTDUINO)
     if (!rIf) {
         rIf = new SX1262Interface(RadioLibHAL, SX126X_CS, SX126X_DIO1, SX126X_RESET, SX126X_BUSY);
         if (!rIf->init()) {
@@ -905,40 +890,6 @@ void setup()
             rIf = NULL;
         } else {
             LOG_INFO("SX1262 Radio init succeeded, using SX1262 radio\n");
-            radioType = SX1262_RADIO;
-        }
-    }
-#endif
-
-#if defined(USE_SX1262) && !defined(ARCH_PORTDUINO) && defined(TCXO_OPTIONAL)
-    if (!rIf) {
-        // Try using the specified TCXO voltage
-        rIf = new SX1262Interface(RadioLibHAL, SX126X_CS, SX126X_DIO1, SX126X_RESET, SX126X_BUSY);
-        if (!rIf->init()) {
-            LOG_WARN("Failed to find SX1262 radio with TCXO using DIO3 reference voltage at %f V\n", tcxoVoltage);
-            delete rIf;
-            rIf = NULL;
-            tcxoVoltage = 0; // if it fails, set the TCXO voltage to zero for the next attempt
-        } else {
-            LOG_INFO("SX1262 Radio init succeeded, using ");
-            LOG_WARN("SX1262 Radio with TCXO");
-            LOG_INFO(", reference voltage at %f V\n", tcxoVoltage);
-            radioType = SX1262_RADIO;
-        }
-    }
-
-    if (!rIf) {
-        // If specified TCXO voltage fails, attempt to use DIO3 as a reference instea
-        rIf = new SX1262Interface(RadioLibHAL, SX126X_CS, SX126X_DIO1, SX126X_RESET, SX126X_BUSY);
-        if (!rIf->init()) {
-            LOG_WARN("Failed to find SX1262 radio with XTAL using DIO3 reference voltage at %f V\n", tcxoVoltage);
-            delete rIf;
-            rIf = NULL;
-            tcxoVoltage = SX126X_DIO3_TCXO_VOLTAGE; // if it fails, set the TCXO voltage back for the next radio search
-        } else {
-            LOG_INFO("SX1262 Radio init succeeded, using ");
-            LOG_WARN("SX1262 Radio with XTAL");
-            LOG_INFO(", reference voltage at %f V\n", tcxoVoltage);
             radioType = SX1262_RADIO;
         }
     }
@@ -1082,7 +1033,7 @@ void setup()
     powerFSMthread = new PowerFSMThread();
     setCPUFast(false); // 80MHz is fine for our slow peripherals
 }
-#endif
+
 uint32_t rebootAtMsec;   // If not zero we will reboot at this time (used to reboot shortly after the update completes)
 uint32_t shutdownAtMsec; // If not zero we will shutdown at this time (used to shutdown from python or mobile client)
 
@@ -1105,7 +1056,7 @@ extern meshtastic_DeviceMetadata getDeviceMetadata()
     deviceMetadata.hasRemoteHardware = moduleConfig.remote_hardware.enabled;
     return deviceMetadata;
 }
-#ifndef PIO_UNIT_TESTING
+
 void loop()
 {
     runASAP = false;
@@ -1151,4 +1102,3 @@ void loop()
     }
     // if (didWake) LOG_DEBUG("wake!\n");
 }
-#endif

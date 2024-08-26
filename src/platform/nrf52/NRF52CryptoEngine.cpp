@@ -9,24 +9,41 @@ class NRF52CryptoEngine : public CryptoEngine
 
     ~NRF52CryptoEngine() {}
 
-    virtual void encryptAESCtr(CryptoKey _key, uint8_t *_nonce, size_t numBytes, uint8_t *bytes) override
+    /**
+     * Encrypt a packet
+     *
+     * @param bytes is updated in place
+     */
+    virtual void encrypt(uint32_t fromNode, uint64_t packetId, size_t numBytes, uint8_t *bytes) override
     {
-        if (_key.length > 16) {
+        if (key.length > 16) {
+            LOG_DEBUG("Software encrypt fr=%x, num=%x, numBytes=%d!\n", fromNode, (uint32_t)packetId, numBytes);
             AES_ctx ctx;
-            AES_init_ctx_iv(&ctx, _key.bytes, _nonce);
+            initNonce(fromNode, packetId);
+            AES_init_ctx_iv(&ctx, key.bytes, nonce);
             AES_CTR_xcrypt_buffer(&ctx, bytes, numBytes);
-        } else if (_key.length > 0) {
+        } else if (key.length > 0) {
+            LOG_DEBUG("nRF52 encrypt fr=%x, num=%x, numBytes=%d!\n", fromNode, (uint32_t)packetId, numBytes);
             nRFCrypto.begin();
             nRFCrypto_AES ctx;
             uint8_t myLen = ctx.blockLen(numBytes);
             char encBuf[myLen] = {0};
+            initNonce(fromNode, packetId);
             ctx.begin();
-            ctx.Process((char *)bytes, numBytes, _nonce, _key.bytes, _key.length, encBuf, ctx.encryptFlag, ctx.ctrMode);
+            ctx.Process((char *)bytes, numBytes, nonce, key.bytes, key.length, encBuf, ctx.encryptFlag, ctx.ctrMode);
             ctx.end();
             nRFCrypto.end();
             memcpy(bytes, encBuf, numBytes);
         }
     }
+
+    virtual void decrypt(uint32_t fromNode, uint64_t packetId, size_t numBytes, uint8_t *bytes) override
+    {
+        // For CTR, the implementation is the same
+        encrypt(fromNode, packetId, numBytes, bytes);
+    }
+
+  private:
 };
 
 CryptoEngine *crypto = new NRF52CryptoEngine();

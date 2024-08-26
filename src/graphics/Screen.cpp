@@ -1591,9 +1591,6 @@ void Screen::handleSetOn(bool on, FrameCallback einkScreensaver)
 
             dispdev->displayOn();
 #ifdef USE_ST7789
-            pinMode(VTFT_CTRL, OUTPUT);
-            digitalWrite(VTFT_CTRL, LOW);
-            ui->init();
 #ifdef ESP_PLATFORM
             analogWrite(VTFT_LEDA, BRIGHTNESS_DEFAULT);
 #else
@@ -1612,21 +1609,10 @@ void Screen::handleSetOn(bool on, FrameCallback einkScreensaver)
 #endif
             LOG_INFO("Turning off screen\n");
             dispdev->displayOff();
+
 #ifdef USE_ST7789
-            SPI1.end();
-#if defined(ARCH_ESP32)
-            pinMode(VTFT_LEDA, ANALOG);
-            pinMode(VTFT_CTRL, ANALOG);
-            pinMode(ST7789_RESET, ANALOG);
-            pinMode(ST7789_RS, ANALOG);
-            pinMode(ST7789_NSS, ANALOG);
-#else
-            nrf_gpio_cfg_default(VTFT_LEDA);
-            nrf_gpio_cfg_default(VTFT_CTRL);
-            nrf_gpio_cfg_default(ST7789_RESET);
-            nrf_gpio_cfg_default(ST7789_RS);
-            nrf_gpio_cfg_default(ST7789_NSS);
-#endif
+            pinMode(VTFT_LEDA, OUTPUT);
+            digitalWrite(VTFT_LEDA, !TFT_BACKLIGHT_ON);
 #endif
 
 #ifdef T_WATCH_S3

@@ -6,7 +6,6 @@
 #include <time.h>
 
 static RTCQuality currentQuality = RTCQualityNone;
-uint32_t lastSetFromPhoneNtpOrGps = 0;
 
 RTCQuality getRTCQuality()
 {
@@ -122,9 +121,6 @@ bool perhapsSetRTC(RTCQuality q, const struct timeval *tv, bool forceUpdate)
     if (shouldSet) {
         currentQuality = q;
         lastSetMsec = now;
-        if (currentQuality >= RTCQualityNTP) {
-            lastSetFromPhoneNtpOrGps = now;
-        }
 
         // This delta value works on all platforms
         timeStartMsec = now;
@@ -260,7 +256,6 @@ uint32_t getValidTime(RTCQuality minQuality, bool local)
 
 time_t gm_mktime(struct tm *tm)
 {
-#if !MESHTASTIC_EXCLUDE_TZ
     setenv("TZ", "GMT0", 1);
     time_t res = mktime(tm);
     if (*config.device.tzdef) {
@@ -269,7 +264,4 @@ time_t gm_mktime(struct tm *tm)
         setenv("TZ", "UTC0", 1);
     }
     return res;
-#else
-    return mktime(tm);
-#endif
 }

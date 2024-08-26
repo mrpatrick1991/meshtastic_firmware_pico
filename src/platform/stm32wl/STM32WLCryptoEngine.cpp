@@ -1,37 +1,36 @@
+#undef RNG
+#include "AES.h"
+#include "CTR.h"
 #include "CryptoEngine.h"
 #include "configuration.h"
 
-#include "mbedtls/aes.h"
-
-class ESP32CryptoEngine : public CryptoEngine
+class STM32WLCryptoEngine : public CryptoEngine
 {
 
-    mbedtls_aes_context aes;
+    CTRCommon *ctr = NULL;
 
   public:
-    ESP32CryptoEngine() { mbedtls_aes_init(&aes); }
+    STM32WLCryptoEngine() {}
 
-    ~ESP32CryptoEngine() { mbedtls_aes_free(&aes); }
+    ~STM32WLCryptoEngine() {}
 
-    /**
-     * Set the key used for encrypt, decrypt.
-     *
-     * As a special case: If all bytes are zero, we assume _no encryption_ and send all data in cleartext.
-     *
-     * @param numBytes must be 16 (AES128), 32 (AES256) or 0 (no crypt)
-     * @param bytes a _static_ buffer that will remain valid for the life of this crypto instance (i.e. this class will cache the
-     * provided pointer)
-     */
     virtual void setKey(const CryptoKey &k) override
     {
         CryptoEngine::setKey(k);
-
+        LOG_DEBUG("Installing AES%d key!\n", key.length * 8);
+        if (ctr) {
+            delete ctr;
+            ctr = NULL;
+        }
         if (key.length != 0) {
-            auto res = mbedtls_aes_setkey_enc(&aes, key.bytes, key.length * 8);
-            assert(!res);
+            if (key.length == 16)
+                ctr = new CTR<AES128>();
+            else
+                ctr = new CTR<AES256>();
+
+            ctr->setKey(key.bytes, key.length);
         }
     }
-
     /**
      * Encrypt a packet
      *
@@ -40,18 +39,16 @@ class ESP32CryptoEngine : public CryptoEngine
     virtual void encrypt(uint32_t fromNode, uint64_t packetId, size_t numBytes, uint8_t *bytes) override
     {
         if (key.length > 0) {
-            LOG_DEBUG("ESP32 crypt fr=%x, num=%x, numBytes=%d!\n", fromNode, (uint32_t)packetId, numBytes);
             initNonce(fromNode, packetId);
             if (numBytes <= MAX_BLOCKSIZE) {
                 static uint8_t scratch[MAX_BLOCKSIZE];
-                uint8_t stream_block[16];
-                size_t nc_off = 0;
                 memcpy(scratch, bytes, numBytes);
                 memset(scratch + numBytes, 0,
                        sizeof(scratch) - numBytes); // Fill rest of buffer with zero (in case cypher looks at it)
 
-                auto res = mbedtls_aes_crypt_ctr(&aes, numBytes, &nc_off, nonce, stream_block, scratch, bytes);
-                assert(!res);
+                ctr->setIV(nonce, sizeof(nonce));
+                ctr->setCounterSize(4);
+                ctr->encrypt(bytes, scratch, numBytes);
             } else {
                 LOG_ERROR("Packet too large for crypto engine: %d. noop encryption!\n", numBytes);
             }
@@ -67,4 +64,4 @@ class ESP32CryptoEngine : public CryptoEngine
   private:
 };
 
-CryptoEngine *crypto = new ESP32CryptoEngine();
+CryptoEngine *crypto = new STM32WLCryptoEngine();

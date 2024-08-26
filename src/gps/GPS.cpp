@@ -23,14 +23,13 @@
 #define GPS_RESET_MODE HIGH
 #endif
 
-#if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO)
+#if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO) 
 HardwareSerial *GPS::_serial_gps = &Serial1;
-#elif defined(USE_STM32WLx)
+#elif defined (RP2040_GPS)
 HardwareSerial *GPS::_serial_gps = &Serial2;
 #else
 HardwareSerial *GPS::_serial_gps = NULL;
 #endif
-
 GPS *gps = nullptr;
 
 GPSUpdateScheduling scheduling;
@@ -400,7 +399,9 @@ int GPS::getACK(uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t 
 bool GPS::setup()
 {
     int msglen = 0;
-
+    didSerialInit = true;
+    gnssModel = GNSS_MODEL_ATGM336H;
+    return(true);
     if (!didSerialInit) {
         if (tx_gpio && gnssModel == GNSS_MODEL_UNKNOWN) {
 
@@ -410,7 +411,7 @@ bool GPS::setup()
             }
 
             LOG_DEBUG("Probing for GPS at %d \n", serialSpeeds[speedSelect]);
-            gnssModel = probe(serialSpeeds[speedSelect]);
+            gnssModel = GNSS_MODEL_ATGM336H;
             if (gnssModel == GNSS_MODEL_UNKNOWN) {
                 if (++speedSelect == sizeof(serialSpeeds) / sizeof(int)) {
                     speedSelect = 0;
@@ -461,7 +462,9 @@ bool GPS::setup()
             _serial_gps->write("$PMTK886,1*29\r\n");
             delay(250);
         } else if (gnssModel == GNSS_MODEL_ATGM336H) {
-            // Set the intial configuration of the device - these _should_ work for most AT6558 devices
+                return true;
+
+            /*// Set the intial configuration of the device - these _should_ work for most AT6558 devices
             msglen = makeCASPacket(0x06, 0x07, sizeof(_message_CAS_CFG_NAVX_CONF), _message_CAS_CFG_NAVX_CONF);
             _serial_gps->write(UBXscratch, msglen);
             if (getACKCas(0x06, 0x07, 250) != GNSS_RESPONSE_OK) {
@@ -486,7 +489,7 @@ bool GPS::setup()
                 if (getACKCas(0x06, 0x01, 250) != GNSS_RESPONSE_OK) {
                     LOG_WARN("ATGM336H - Could not enable NMEA MSG: %d\n", fields[i]);
                 }
-            }
+            }*/
         } else if (gnssModel == GNSS_MODEL_UC6580) {
             // The Unicore UC6580 can use a lot of sat systems, enable it to
             // use GPS L1 & L5 + BDS B1I & B2a + GLONASS L1 + GALILEO E1 & E5a + SBAS
@@ -812,13 +815,6 @@ void GPS::setPowerState(GPSPowerState newState, uint32_t sleepTime)
     powerState = newState;
     LOG_INFO("GPS power state moving from %s to %s\n", getGPSPowerStateString(oldState), getGPSPowerStateString(newState));
 
-#ifdef HELTEC_MESH_NODE_T114
-    if ((oldState == GPS_OFF || oldState == GPS_HARDSLEEP) && (newState != GPS_OFF && newState != GPS_HARDSLEEP)) {
-        _serial_gps->begin(serialSpeeds[speedSelect]);
-    } else if ((newState == GPS_OFF || newState == GPS_HARDSLEEP) && (oldState != GPS_OFF && oldState != GPS_HARDSLEEP)) {
-        _serial_gps->end();
-    }
-#endif
     switch (newState) {
     case GPS_ACTIVE:
     case GPS_IDLE:
@@ -1226,14 +1222,6 @@ GnssModel_t GPS::probe(int serialSpeed)
     delay(750);
     if (getACK("UC6580", 500) == GNSS_RESPONSE_OK) {
         LOG_INFO("UC6580 detected, using UC6580 Module\n");
-        return GNSS_MODEL_UC6580;
-    }
-
-    clearBuffer();
-    _serial_gps->write("$PDTINFO\r\n");
-    delay(750);
-    if (getACK("UM600", 500) == GNSS_RESPONSE_OK) {
-        LOG_INFO("UM600 detected, using UC6580 Module\n");
         return GNSS_MODEL_UC6580;
     }
 
@@ -1769,10 +1757,7 @@ bool GPS::whileActive()
 {
     unsigned int charsInBuf = 0;
     bool isValid = false;
-    if (powerState != GPS_ACTIVE) {
-        clearBuffer();
-        return false;
-    }
+
 #ifdef SERIAL_BUFFER_SIZE
     if (_serial_gps->available() >= SERIAL_BUFFER_SIZE - 1) {
         LOG_WARN("GPS Buffer full with %u bytes waiting. Flushing to avoid corruption.\n", _serial_gps->available());
@@ -1784,6 +1769,7 @@ bool GPS::whileActive()
     // First consume any chars that have piled up at the receiver
     while (_serial_gps->available() > 0) {
         int c = _serial_gps->read();
+        Serial.write(c);
         UBXscratch[charsInBuf] = c;
 #ifdef GPS_DEBUG
         LOG_DEBUG("%c", c);
