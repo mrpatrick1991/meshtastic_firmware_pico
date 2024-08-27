@@ -14,7 +14,7 @@ config:
   lora:
     hopLimit: 3
     ignoreMqtt: true
-    region: US
+    region: UNSET
     sx126xRxBoostedGain: true
     txEnabled: true
     txPower: 10

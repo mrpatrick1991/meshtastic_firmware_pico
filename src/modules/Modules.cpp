@@ -135,7 +135,7 @@ void setupModules()
         new PowerStressModule();
 #endif
         // Example: Put your module here
-        // new ReplyModule();
+        //new ReplyModule();
 #if (HAS_BUTTON || ARCH_PORTDUINO) && !MESHTASTIC_EXCLUDE_INPUTBROKER
         rotaryEncoderInterruptImpl1 = new RotaryEncoderInterruptImpl1();
         if (!rotaryEncoderInterruptImpl1->init()) {
