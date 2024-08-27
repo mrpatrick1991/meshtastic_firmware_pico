@@ -25,6 +25,8 @@
 
 #if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO)
 HardwareSerial *GPS::_serial_gps = &Serial1;
+#elif defined(GPS_SERIAL_PORT)
+HardwareSerial *GPS::_serial_gps = &GPS_SERIAL_PORT;
 #else
 HardwareSerial *GPS::_serial_gps = NULL;
 #endif
@@ -400,6 +402,12 @@ bool GPS::setup()
     int msglen = 0;
 
     if (!didSerialInit) {
+
+        #ifdef FORCE_GNSS_MODEL // permit specifying the gps model at compile time
+            gnssModel = FORCE_GNSS_MODEL;
+        #endif
+        
+
         if (tx_gpio && gnssModel == GNSS_MODEL_UNKNOWN) {
 
             // if GPS_BAUDRATE is specified in variant (i.e. not 9600), skip to the specified rate.
