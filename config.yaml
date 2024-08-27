@@ -12,7 +12,7 @@ config:
   display:
     screenOnSecs: 600
   lora:
-    hopLimit: 3
+    hopLimit: 1
     ignoreMqtt: true
     region: UNSET
     sx126xRxBoostedGain: true
