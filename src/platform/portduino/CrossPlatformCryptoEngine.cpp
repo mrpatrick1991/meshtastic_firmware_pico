@@ -1,17 +1,19 @@
+#include "AES.h"
+#include "CTR.h"
 #include "CryptoEngine.h"
 #include "configuration.h"
 
-#include "mbedtls/aes.h"
-
-class ESP32CryptoEngine : public CryptoEngine
+/** A platform independent AES engine implemented using Tiny-AES
+ */
+class CrossPlatformCryptoEngine : public CryptoEngine
 {
 
-    mbedtls_aes_context aes;
+    CTRCommon *ctr = NULL;
 
   public:
-    ESP32CryptoEngine() { mbedtls_aes_init(&aes); }
+    CrossPlatformCryptoEngine() {}
 
-    ~ESP32CryptoEngine() { mbedtls_aes_free(&aes); }
+    ~CrossPlatformCryptoEngine() {}
 
     /**
      * Set the key used for encrypt, decrypt.
@@ -25,10 +27,18 @@ class ESP32CryptoEngine : public CryptoEngine
     virtual void setKey(const CryptoKey &k) override
     {
         CryptoEngine::setKey(k);
-
+        LOG_DEBUG("Installing AES%d key!\n", key.length * 8);
+        if (ctr) {
+            delete ctr;
+            ctr = NULL;
+        }
         if (key.length != 0) {
-            auto res = mbedtls_aes_setkey_enc(&aes, key.bytes, key.length * 8);
-            assert(!res);
+            if (key.length == 16)
+                ctr = new CTR<AES128>();
+            else
+                ctr = new CTR<AES256>();
+
+            ctr->setKey(key.bytes, key.length);
         }
     }
 
@@ -40,18 +50,16 @@ class ESP32CryptoEngine : public CryptoEngine
     virtual void encrypt(uint32_t fromNode, uint64_t packetId, size_t numBytes, uint8_t *bytes) override
     {
         if (key.length > 0) {
-            LOG_DEBUG("ESP32 crypt fr=%x, num=%x, numBytes=%d!\n", fromNode, (uint32_t)packetId, numBytes);
             initNonce(fromNode, packetId);
             if (numBytes <= MAX_BLOCKSIZE) {
                 static uint8_t scratch[MAX_BLOCKSIZE];
-                uint8_t stream_block[16];
-                size_t nc_off = 0;
                 memcpy(scratch, bytes, numBytes);
                 memset(scratch + numBytes, 0,
                        sizeof(scratch) - numBytes); // Fill rest of buffer with zero (in case cypher looks at it)
 
-                auto res = mbedtls_aes_crypt_ctr(&aes, numBytes, &nc_off, nonce, stream_block, scratch, bytes);
-                assert(!res);
+                ctr->setIV(nonce, sizeof(nonce));
+                ctr->setCounterSize(4);
+                ctr->encrypt(bytes, scratch, numBytes);
             } else {
                 LOG_ERROR("Packet too large for crypto engine: %d. noop encryption!\n", numBytes);
             }
@@ -67,4 +75,4 @@ class ESP32CryptoEngine : public CryptoEngine
   private:
 };
 
-CryptoEngine *crypto = new ESP32CryptoEngine();
+CryptoEngine *crypto = new CrossPlatformCryptoEngine();

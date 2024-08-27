@@ -11,9 +11,6 @@ static File openFile(const char *filename, bool fullAtomic)
     String filenameTmp = filename;
     filenameTmp += ".tmp";
 
-    // clear any previous LFS errors
-    lfs_assert_failed = false;
-
     return FSCom.open(filenameTmp.c_str(), FILE_O_WRITE);
 }
 
@@ -76,9 +73,6 @@ bool SafeFile::close()
 /// Read our (closed) tempfile back in and compare the hash
 bool SafeFile::testReadback()
 {
-    bool lfs_failed = lfs_assert_failed;
-    lfs_assert_failed = false;
-
     String filenameTmp = filename;
     filenameTmp += ".tmp";
     auto f2 = FSCom.open(filenameTmp.c_str(), FILE_O_READ);
@@ -99,7 +93,7 @@ bool SafeFile::testReadback()
         return false;
     }
 
-    return !lfs_failed;
+    return true;
 }
 
 #endif
