@@ -1,5 +1,5 @@
 # start of Meshtastic configure yaml
-channel_url: https://meshtastic.org/e/#CgcSAQE6AgggEg8IATgBQANIAVAKaAHABgE
+channel_url: https://meshtastic.org/e/#CgcSAQE6AgggEg8IATgBQANIAVAUaAHABgE
 config:
   bluetooth:
     enabled: true
@@ -12,12 +12,12 @@ config:
   display:
     screenOnSecs: 600
   lora:
-    hopLimit: 1
+    hopLimit: 3
     ignoreMqtt: true
-    region: UNSET
+    region: US
     sx126xRxBoostedGain: true
     txEnabled: true
-    txPower: 10
+    txPower: 20
     usePreset: true
   network:
     ntpServer: meshtastic.pool.ntp.org
@@ -25,10 +25,10 @@ config:
     broadcastSmartMinimumDistance: 100
     broadcastSmartMinimumIntervalSecs: 30
     gpsMode: ENABLED
-    gpsUpdateInterval: 10
-    positionBroadcastSecs: 120
+    gpsUpdateInterval: 120
+    positionBroadcastSecs: 900
     positionBroadcastSmartEnabled: true
-    positionFlags: 971
+    positionFlags: 811
   power:
     lsSecs: 300
     minWakeSecs: 10
@@ -36,32 +36,19 @@ config:
     waitBluetoothSecs: 60
 module_config:
   ambientLighting:
-    blue: 51
+    blue: 53
     current: 10
-    green: 176
-    red: 81
+    green: 109
+    red: 17
   detectionSensor:
     detectionTriggeredHigh: true
     minimumBroadcastSecs: 45
-  externalNotification:
-    active: true
-    alertMessage: true
-    enabled: true
-    nagTimeout: 60
-    output: 24
-    outputMs: 1000
   mqtt:
     address: mqtt.meshtastic.org
     encryptionEnabled: true
     password: large4cats
     root: msh/US
     username: meshdev
-  neighborInfo:
-    updateInterval: 900
-  telemetry:
-    airQualityInterval: 900
-    deviceUpdateInterval: 900
-    environmentUpdateInterval: 900
 owner: KIRBY-3
 owner_short: "\U0001F6F0"
 

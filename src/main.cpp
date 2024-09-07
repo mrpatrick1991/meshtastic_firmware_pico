@@ -703,6 +703,7 @@ void setup()
 #if !MESHTASTIC_EXCLUDE_GPS
     // If we're taking on the repeater role, ignore GPS
     if (HAS_GPS) {
+
         if (config.device.role != meshtastic_Config_DeviceConfig_Role_REPEATER &&
             config.position.gps_mode != meshtastic_Config_PositionConfig_GpsMode_NOT_PRESENT) {
             gps = GPS::createGps();

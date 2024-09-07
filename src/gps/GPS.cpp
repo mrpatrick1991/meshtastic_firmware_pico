@@ -399,6 +399,8 @@ int GPS::getACK(uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t 
 
 bool GPS::setup()
 {
+
+    Serial.println("FOOOOOOOOOOOOOOOO");
     int msglen = 0;
 
     if (!didSerialInit) {
