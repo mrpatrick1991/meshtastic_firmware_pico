@@ -39,7 +39,7 @@
 #include <memory>
 #include <utility>
 // #include <driver/rtc_io.h>
-#include "LightTrackerGeofence.h"
+//#include "LightTrackerGeofence.h"
 
 #ifdef ARCH_ESP32
 #if !MESHTASTIC_EXCLUDE_WEBSERVER
@@ -228,6 +228,8 @@ void printInfo()
 {
     LOG_INFO("S:B:%d,%s\n", HW_VENDOR, optstr(APP_VERSION));
 }
+
+HardwareSerial Serial_GPS(PA2,PA3);
 
 void setup()
 {
@@ -1033,6 +1035,8 @@ void setup()
     PowerFSM_setup(); // we will transition to ON in a couple of seconds, FIXME, only do this for cold boots, not waking from SDS
     powerFSMthread = new PowerFSMThread();
     setCPUFast(false); // 80MHz is fine for our slow peripherals
+
+    Serial_GPS.begin(9600);
 }
 
 uint32_t rebootAtMsec;   // If not zero we will reboot at this time (used to reboot shortly after the update completes)
@@ -1058,21 +1062,94 @@ extern meshtastic_DeviceMetadata getDeviceMetadata()
     return deviceMetadata;
 }
 
+// convert the NMEA longitude format to degrees
+double convertLongitudeToDegrees(const std::string& longitude, const std::string& direction) {
+    if (longitude.empty()) return 0.0;
+    
+    // Parse the degrees part (first 3 characters) and the minutes part (remaining)
+    double degrees = std::stod(longitude.substr(0, 3));
+    double minutes = std::stod(longitude.substr(3));
+
+    // Convert minutes to degrees
+    double decimalDegrees = degrees + (minutes / 60.0);
+    
+    // Apply direction (W is negative)
+    if (direction == "W") {
+        decimalDegrees = -decimalDegrees;
+    }
+    
+    return decimalDegrees;
+}
+
+bool region_code_set = false;
+
 void loop()
 {
+    std::string sentence = ""; // this is horrific
+    std::string field = "";
+    bool gpggaFound = false;
+    int commaCount = 0;
+    std::string longitude = "";
+    std::string direction = "";
+    std::string fixQuality = "";
 
-    // set the region code dynamically based on the GPS location
-    if (gpsStatus->getIsConnected() && gpsStatus->getHasLock()) {
-        meshtastic_Config_LoRaConfig_RegionCode current_gps_region_code = Lorawan_Geofence_position(gpsStatus->getLatitude()*1e-7, gpsStatus->getLongitude()*1e-7);
-        if (current_gps_region_code != config.lora.region){
-            LOG_INFO("GPS has a lock and is connected, checking region code.\n");
-            LOG_INFO("GPS suggests that we use region code: ");
-            Serial.println(current_gps_region_code);
-            config.lora.region = current_gps_region_code;
-            LOG_INFO("region code set, is now: ");
-            Serial.println(config.lora.region);
-            LOG_INFO("mesh service reloading config.\n");
+    if (!region_code_set) {
+
+    while (Serial_GPS.available()) {
+        char c = Serial_GPS.read();
+
+        // Collect the sentence once we find "$GPGGA,"
+        if (sentence == "$GPGGA," || gpggaFound) {
+            if (c == ',') {
+                commaCount++;
+
+                // Fix quality is the 6th field (comma #5 indicates we're at fix quality)
+                if (commaCount == 6) {
+                    fixQuality = field;
+                }
+
+                // Longitude is the 5th field (comma #4 indicates we're at longitude)
+                if (commaCount == 4) {
+                    longitude = field;
+                    field.clear();
+                }
+                // Direction (E/W) is the 6th field (after the 5th comma)
+                else if (commaCount == 5) {
+                    direction = field;
+                }
+
+                field.clear();  // Clear field after each comma
+            } else {
+                field += c;  // Collect each character of the current field
+            }
+            gpggaFound = true;
+        }
+        else {
+            // Build sentence until we see "$GPGGA,"
+            sentence += c;
+            if (sentence == "$GPGGA,") {
+                gpggaFound = true;
+            }
+            else if (sentence.length() > 7) {
+                sentence = sentence.substr(1);  // Keep shifting out characters if no match
+            }
+        }
+    }
+    }
+
+    if (!region_code_set) {
+
+        if (!longitude.empty() && !direction.empty()) {
+            double longitudeDegrees = convertLongitudeToDegrees(longitude, direction);
+            if (longitudeDegrees < -160 || longitudeDegrees > -40) {
+                config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_US;
+            }
+            else {
+                config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_EU_868;
+            }
+            region_code_set = true; // we only need to do this once per day. 
             service->reloadConfig(SEGMENT_CONFIG);
+
         }
     }
 
