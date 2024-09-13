@@ -1141,11 +1141,11 @@ void loop()
 
         if (!longitude.empty() && !direction.empty()) {
             double longitudeDegrees = convertLongitudeToDegrees(longitude, direction);
-            if (longitudeDegrees < -160 || longitudeDegrees > -40) {
-                config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_US;
+            if (longitudeDegrees > -40) { // apparently the universe is just europe and north america who knew.
+                config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_EU_868;
             }
             else {
-                config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_EU_868;
+                config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_US;
             }
             region_code_set = true; // we only need to do this once per day. 
             service->reloadConfig(SEGMENT_CONFIG);
