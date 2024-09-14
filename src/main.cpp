@@ -1036,8 +1036,8 @@ void setup()
     powerFSMthread = new PowerFSMThread();
     setCPUFast(false); // 80MHz is fine for our slow peripherals
 
-    Serial1.begin(115200);
-    Serial2.begin(9600);
+    Serial1.begin(115200); // debug
+    Serial2.begin(9600); // GPS NMEA in
 
 }
 
