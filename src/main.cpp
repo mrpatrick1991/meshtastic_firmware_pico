@@ -229,7 +229,7 @@ void printInfo()
     LOG_INFO("S:B:%d,%s\n", HW_VENDOR, optstr(APP_VERSION));
 }
 
-HardwareSerial Serial_GPS(PA2,PA3);
+HardwareSerial Serial2(PA2,PA3);
 
 void setup()
 {
@@ -1036,7 +1036,9 @@ void setup()
     powerFSMthread = new PowerFSMThread();
     setCPUFast(false); // 80MHz is fine for our slow peripherals
 
-    Serial_GPS.begin(9600);
+    Serial1.begin(115200);
+    Serial2.begin(9600);
+
 }
 
 uint32_t rebootAtMsec;   // If not zero we will reboot at this time (used to reboot shortly after the update completes)
@@ -1085,7 +1087,8 @@ bool region_code_set = false;
 
 void loop()
 {
-    std::string sentence = ""; // this is horrific
+    Serial1.print("loop!");
+    /*std::string sentence = ""; // this is horrific
     std::string field = "";
     bool gpggaFound = false;
     int commaCount = 0;
@@ -1151,7 +1154,7 @@ void loop()
             service->reloadConfig(SEGMENT_CONFIG);
 
         }
-    }
+    }*/
 
     runASAP = false;
 

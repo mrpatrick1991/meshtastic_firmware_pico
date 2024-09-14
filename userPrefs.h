@@ -5,8 +5,8 @@
 
 // #define EVENT_MODE 1
 
-// #define CONFIG_LORA_REGION_USERPREFS meshtastic_Config_LoRaConfig_RegionCode_US
-// #define LORACONFIG_MODEM_PRESET_USERPREFS meshtastic_Config_LoRaConfig_ModemPreset_SHORT_FAST
+#define CONFIG_LORA_REGION_USERPREFS meshtastic_Config_LoRaConfig_RegionCode_US
+#define LORACONFIG_MODEM_PRESET_USERPREFS meshtastic_Config_LoRaConfig_ModemPreset_LONG_FAST
 // #define LORACONFIG_CHANNEL_NUM_USERPREFS 31
 // #define CONFIG_LORA_IGNORE_MQTT_USERPREFS true
 /*
@@ -16,7 +16,7 @@
             0xbf, 0x74, 0x22, 0x7e, 0x9d, 0x6a, 0xfb, 0x48, 0xd6, 0x4c, 0xb1, 0xa1                                               \
     }
 */
-// #define CHANNEL_0_NAME_USERPREFS "DEFCONnect"
+//#define CHANNEL_0_NAME_USERPREFS "DEFCONnect"
 // #define CHANNEL_0_PRECISION_USERPREFS 13
 
 // #define SPLASH_TITLE_USERPREFS "DEFCONtastic"
