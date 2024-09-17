@@ -5,8 +5,11 @@
 
 // #define EVENT_MODE 1
 
-// #define CONFIG_LORA_REGION_USERPREFS meshtastic_Config_LoRaConfig_RegionCode_US
-// #define LORACONFIG_MODEM_PRESET_USERPREFS meshtastic_Config_LoRaConfig_ModemPreset_SHORT_FAST
+#define CONFIG_LORA_REGION_USERPREFS meshtastic_Config_LoRaConfig_RegionCode_US
+#define LORACONFIG_MODEM_PRESET_USERPREFS meshtastic_Config_LoRaConfig_ModemPreset_LONG_FAST
+#define CONFIG_OWNER_LONG_NAME_USERPREFS "protoroof"
+#define CONFIG_OWNER_SHORT_NAME_USERPREFS "ptrf"
+
 // #define LORACONFIG_CHANNEL_NUM_USERPREFS 31
 // #define CONFIG_LORA_IGNORE_MQTT_USERPREFS true
 /*
