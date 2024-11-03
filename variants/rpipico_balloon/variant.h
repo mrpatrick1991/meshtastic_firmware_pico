@@ -1,0 +1,37 @@
+// #define RADIOLIB_CUSTOM_ARDUINO 1
+// #define RADIOLIB_TONE_UNSUPPORTED 1
+// #define RADIOLIB_SOFTWARE_SERIAL_UNSUPPORTED 1
+
+#define ARDUINO_ARCH_AVR
+
+#define LED_PIN PIN_LED
+
+#undef USE_SX1262
+#define USE_RF95
+
+#undef LORA_SCK
+#undef LORA_MISO
+#undef LORA_MOSI
+#undef LORA_CS
+
+#define LORA_SCK 10
+#define LORA_MISO 12
+#define LORA_MOSI 11
+#define LORA_CS 13
+
+#define LORA_DIO0 14
+#define LORA_RESET 15
+#define LORA_DIO1 16
+#define LORA_DIO2 RADIOLIB_NC
+#define LORA_DIO3 RADIOLIB_NC
+
+#define HAS_GPS 1
+#define FORCE_GNSS_MODEL GNSS_MODEL_ATGM336H
+#define GPS_SERIAL_PORT Serial1
+#define GPS_SERIAL_BAUD 9600
+#define GPS_RX_PIN 1
+#define GPS_TX_PIN 0
+
+#define GPS_EXTRAVERBOSE 1
+#define GPS_DEBUG 1
+
