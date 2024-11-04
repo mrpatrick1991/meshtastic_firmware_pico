@@ -10,6 +10,9 @@
 #include "input/cardKbI2cImpl.h"
 #include "input/kbMatrixImpl.h"
 #endif
+#if !MESHTASTIC_EXCLUDE_REGIONSET
+#include "modules/LoRaRegionModule.h"
+#endif
 #if !MESHTASTIC_EXCLUDE_ADMIN
 #include "modules/AdminModule.h"
 #endif
@@ -240,6 +243,9 @@ void setupModules()
 #endif
 #if !MESHTASTIC_EXCLUDE_TRACEROUTE
         traceRouteModule = new TraceRouteModule();
+#endif
+#if !MESHTASTIC_EXCLUDE_GPS_REGIONSET
+        new LoRaRegionModule();
 #endif
     }
     // NOTE! This module must be added LAST because it likes to check for replies from other modules and avoid sending extra

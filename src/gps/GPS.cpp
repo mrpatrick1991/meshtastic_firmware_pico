@@ -781,9 +781,6 @@ void GPS::writePinEN(bool on)
 
     // Write and log
     enablePin->set(on);
-#ifdef GPS_EXTRAVERBOSE
-    LOG_DEBUG("Pin EN %s", val == HIGH ? "HIGH" : "LOW");
-#endif
 }
 
 // Set the value of the STANDBY pin, if relevant
