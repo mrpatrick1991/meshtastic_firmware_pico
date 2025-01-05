@@ -55,7 +55,7 @@ typedef struct {
     PacketHeader header;
 
     /** The payload, of maximum length minus the header, aligned just to be sure */
-    uint8_t payload[MAX_LORA_PAYLOAD_LEN + 1 - sizeof(PacketHeader)] __attribute__ ((__aligned__));
+    uint8_t payload[MAX_LORA_PAYLOAD_LEN + 1 - sizeof(PacketHeader)] __attribute__((__aligned__));
 
 } RadioBuffer;
 
@@ -105,7 +105,7 @@ class RadioInterface
     /**
      * A temporary buffer used for sending/receiving packets, sized to hold the biggest buffer we might need
      * */
-    RadioBuffer radioBuffer __attribute__ ((__aligned__));
+    RadioBuffer radioBuffer __attribute__((__aligned__));
     /**
      * Enqueue a received packet for the registered receiver
      */
@@ -173,8 +173,17 @@ class RadioInterface
     /** The delay to use when we want to send something */
     uint32_t getTxDelayMsec();
 
+    /** The CW to use when calculating SNR_based delays */
+    uint8_t getCWsize(float snr);
+
+    /** The worst-case SNR_based packet delay */
+    uint32_t getTxDelayMsecWeightedWorst(float snr);
+
     /** The delay to use when we want to flood a message. Use a weighted scale based on SNR */
     uint32_t getTxDelayMsecWeighted(float snr);
+
+    /** If the packet is not already in the late rebroadcast window, move it there */
+    virtual void clampToLateRebroadcastWindow(NodeNum from, PacketId id) { return; }
 
     /**
      * Calculate airtime per
