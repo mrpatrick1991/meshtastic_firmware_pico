@@ -37,7 +37,7 @@ template <typename T, std::size_t N> std::size_t array_count(const T (&)[N])
 #if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(ARCH_ESP32) || defined(ARCH_PORTDUINO)
 HardwareSerial *GPS::_serial_gps = &Serial1;
 #elif defined(ARCH_RP2040)
-SerialUART *GPS::_serial_gps = &Serial1;
+SerialUART *GPS::_serial_gps = &GPS_SERIAL_PORT;
 #else
 HardwareSerial *GPS::_serial_gps = nullptr;
 #endif
@@ -447,7 +447,8 @@ bool GPS::setup()
         if (tx_gpio && gnssModel == GNSS_MODEL_UNKNOWN) {
             if (probeTries < 2) {
                 LOG_DEBUG("Probe for GPS at %d", serialSpeeds[speedSelect]);
-                gnssModel = probe(serialSpeeds[speedSelect]);
+                //gnssModel = probe(serialSpeeds[speedSelect]);
+                gnssModel = GNSS_MODEL_ATGM336H;
                 if (gnssModel == GNSS_MODEL_UNKNOWN) {
                     if (++speedSelect == array_count(serialSpeeds)) {
                         speedSelect = 0;
