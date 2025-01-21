@@ -50,7 +50,7 @@
 #define SX126X_DIO3_TCXO_VOLTAGE 1.8
 #endif
 
-#undef GPS_DEBUG
+#define GPS_DEBUG 1
 #define HAS_GPS 1
 #define FORCE_GNSS_MODEL GNSS_MODEL_ATGM336H
 #define GPS_SERIAL_PORT Serial2

@@ -28,7 +28,7 @@ config:
     gpsMode: ENABLED
     gpsUpdateInterval: 10
     positionBroadcastSecs: 300
-    positionFlags: 993
+    positionFlags: 995
   power:
     lsSecs: 300
     minWakeSecs: 10
@@ -38,6 +38,10 @@ config:
     privateKey: base64:8InBFMMlOj9I7tMkTQb8C3ZDDYHANC3LfJA8OzB1E0I=
     publicKey: base64:mTovRNIgvaG03hEFpfJeSx4CXys4cAMufYUsAKX6QB4=
     serialEnabled: true
+location:
+  alt: 1060
+  lat: 51.0774193
+  lon: -114.0233708
 module_config:
   ambientLighting:
     blue: 51

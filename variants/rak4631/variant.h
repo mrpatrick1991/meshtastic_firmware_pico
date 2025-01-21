@@ -21,6 +21,8 @@
 
 #define RAK4630
 
+#define SET_UBLOX_FLIGHT_MODE 1
+
 /** Master clock frequency */
 #define VARIANT_MCK (64000000ul)
 

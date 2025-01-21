@@ -1,20 +1,20 @@
 # start of Meshtastic configure yaml
-channel_url: https://meshtastic.org/e/#CgsSAQEoATABOgIIIBISCAE4AUADSAFQHmgBwAYByAYB
+channel_url: https://meshtastic.org/e/#CioSIOX43Mh43pgzcD5-2Y3HwFUfRbjuEnxV8ZdYSRGRd1fEKAEwAToCCCASEQgBOAFAA0gBUB5YAWgByAYB
 config:
   bluetooth:
     enabled: true
     fixedPin: 123456
     mode: FIXED_PIN
   device:
-    disableTripleClick: true
-    nodeInfoBroadcastSecs: 3600
-    serialEnabled: true
+    nodeInfoBroadcastSecs: 300
+    role: TRACKER
+    tzdef: MST7MDT,M3.2.0/2:00:00,M11.1.0/2:00:00
   display:
     screenOnSecs: 600
   lora:
+    channelNum: 1
     configOkToMqtt: true
     hopLimit: 3
-    ignoreMqtt: true
     region: US
     sx126xRxBoostedGain: true
     txEnabled: true
@@ -26,24 +26,24 @@ config:
     broadcastSmartMinimumDistance: 100
     broadcastSmartMinimumIntervalSecs: 30
     gpsMode: ENABLED
-    gpsUpdateInterval: 10
-    positionBroadcastSecs: 300
-    positionFlags: 993
+    gpsUpdateInterval: 30
+    positionBroadcastSecs: 60
+    positionFlags: 811
   power:
     lsSecs: 300
     minWakeSecs: 10
     sdsSecs: 4294967295
     waitBluetoothSecs: 60
   security:
-    privateKey: base64:8InBFMMlOj9I7tMkTQb8C3ZDDYHANC3LfJA8OzB1E0I=
-    publicKey: base64:mTovRNIgvaG03hEFpfJeSx4CXys4cAMufYUsAKX6QB4=
+    privateKey: base64:gC4/pH3RBs2F8tAKUoocTCGecLamVLcD+LzQvCfp2WE=
+    publicKey: base64:MHmHrkuFTIJPzDhZdnUPKI4xu6MznNjoSHef92aShlo=
     serialEnabled: true
 module_config:
   ambientLighting:
-    blue: 51
+    blue: 57
     current: 10
-    green: 176
-    red: 81
+    green: 122
+    red: 48
   detectionSensor:
     detectionTriggerType: LOGIC_HIGH
     minimumBroadcastSecs: 45
@@ -52,21 +52,26 @@ module_config:
     alertMessage: true
     enabled: true
     nagTimeout: 60
-    output: 24
+    output: 36
     outputMs: 1000
   mqtt:
     address: mqtt.meshtastic.org
+    enabled: true
     encryptionEnabled: true
+    mapReportSettings:
+      positionPrecision: 14
+      publishIntervalSecs: 3600
     mapReportingEnabled: true
     password: large4cats
-    root: msh/US
+    proxyToClientEnabled: true
+    root: msh/US/AB
     username: meshdev
-  neighborInfo:
-    updateInterval: 14400
   telemetry:
-    airQualityInterval: 1800
-    deviceUpdateInterval: 1800
-    environmentUpdateInterval: 1800
-owner: ROWLET-1
-owner_short: "\U0001F388"
+    deviceUpdateInterval: 60
+    environmentMeasurementEnabled: true
+    environmentUpdateInterval: 60
+    powerMeasurementEnabled: true
+    powerUpdateInterval: 60
+owner: VE6AZX-11
+owner_short: AZX1
 
