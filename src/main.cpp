@@ -37,6 +37,11 @@
 #include "shutdown.h"
 #include "sleep.h"
 #include "target_specific.h"
+
+#ifdef SET_UBLOX_FLIGHT_MODE
+#include "UbloxFlightMode.h"
+#endif 
+
 #include <memory>
 #include <utility>
 
@@ -236,8 +241,12 @@ void printInfo()
     LOG_INFO("S:B:%d,%s", HW_VENDOR, optstr(APP_VERSION));
 }
 #ifndef PIO_UNIT_TESTING
+
+long last_gps_reset_ms;
 void setup()
 {
+
+    last_gps_reset_ms = millis();
     concurrency::hasBeenSetup = true;
 #if ARCH_PORTDUINO
     SPISettings spiSettings(settingsMap[spiSpeed], MSBFIRST, SPI_MODE0);
@@ -1218,5 +1227,17 @@ void loop()
     if (!runASAP && loopCanSleep()) {
         mainDelay.delay(delayMsec);
     }
+
+    #ifdef SET_UBLOX_FLIGHT_MODE
+        if (millis() - last_gps_reset_ms > 1000*60l) {
+            byte gps_set_success = 0;
+            while(!gps_set_success) {
+                sendUBX(setNav, sizeof(setNav)/sizeof(uint8_t));
+                gps_set_success=getUBX_ACK(setNav);
+            }
+            last_gps_reset_ms = millis();
+        }
+    #endif
+
 }
 #endif
