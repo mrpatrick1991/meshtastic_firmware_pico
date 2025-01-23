@@ -1228,7 +1228,7 @@ void loop()
         mainDelay.delay(delayMsec);
     }
 
-    #ifdef SET_UBLOX_FLIGHT_MODE
+    /*#ifdef SET_UBLOX_FLIGHT_MODE
         if (millis() - last_gps_reset_ms > 1000*60l) {
             byte gps_set_success = 0;
             while(!gps_set_success) {
@@ -1237,7 +1237,8 @@ void loop()
             }
             last_gps_reset_ms = millis();
         }
-    #endif
+    #endif*/ 
+    // this was a very bad idea.
 
 }
 #endif
