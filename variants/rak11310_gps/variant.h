@@ -52,7 +52,7 @@
 #define FORCE_GNSS_MODEL GNSS_MODEL_ATGM336H
 #define HAS_GPS 1
 #define GPS_BAUDRATE 9600
-//#define GPS_DEBUG 1
-//#define GPS_EXTRAVERBOSE 1
+#define GPS_DEBUG 1
+#define GPS_EXTRAVERBOSE 1
 #define GPS_RX_PIN 9
 #define GPS_TX_PIN 10
