@@ -1,0 +1,76 @@
+# start of Meshtastic configure yaml
+channel_url: https://meshtastic.org/e/#CgcSAQE6AggPEhkY9AMgCygFOAFAA0gBUA5oAXUArGFEyAYB
+config:
+  bluetooth:
+    enabled: true
+    fixedPin: 123456
+    mode: FIXED_PIN
+  device:
+    nodeInfoBroadcastSecs: 10800
+    tzdef: MST7MDT,M3.2.0/2:00:00,M11.1.0/2:00:00
+  display:
+    screenOnSecs: 600
+  lora:
+    bandwidth: 500
+    codingRate: 5
+    configOkToMqtt: true
+    hopLimit: 3
+    overrideFrequency: false
+    region: UNSET
+    spreadFactor: 11
+    sx126xRxBoostedGain: true
+    txEnabled: true
+    txPower: 14
+    usePreset: true
+  network:
+    ntpServer: meshtastic.pool.ntp.org
+  position:
+    broadcastSmartMinimumDistance: 100
+    broadcastSmartMinimumIntervalSecs: 300
+    gpsMode: ENABLED
+    gpsUpdateInterval: 30
+    positionBroadcastSecs: 600
+    positionBroadcastSmartEnabled: false
+    positionFlags: 811
+    rxGpio: 3
+    txGpio: 2
+  power:
+    lsSecs: 300
+    minWakeSecs: 10
+    sdsSecs: 4294967295
+    waitBluetoothSecs: 60
+  security:
+    privateKey: base64:WJQ3mQw+qtFvTfj81o+9rOX+w9k5EF2UobDsMsOv+Uc=
+    publicKey: base64:sx1B0u2hwo4d6gmCVPoZhOZvUsoeABkAU0rl1iN0qkU=
+    serialEnabled: true
+location:
+  alt: 1017
+  lat: 50.9189101
+  lon: -113.9612401
+module_config:
+  ambientLighting:
+    blue: 43
+    current: 10
+    green: 75
+    red: 9
+  detectionSensor:
+    detectionTriggerType: LOGIC_HIGH
+    minimumBroadcastSecs: 45
+  mqtt:
+    address: mqtt.meshtastic.org
+    encryptionEnabled: true
+    password: large4cats
+    root: msh/US
+    username: meshdev
+  serial:
+    enabled: true
+  telemetry:
+    deviceTelemetryEnabled: true
+    deviceUpdateInterval: 600
+    environmentMeasurementEnabled: true
+    environmentUpdateInterval: 600
+    powerMeasurementEnabled: true
+    powerUpdateInterval: 600
+owner: PSPC Balloon 1
+owner_short: "\U0001F6F0"
+

@@ -233,7 +233,6 @@ GPS_RESPONSE GPS::getACK(const char *message, uint32_t waitMillis)
     while (millis() < startTimeout) {
         if (_serial_gps->available()) {
             b = _serial_gps->read();
-
 #ifdef GPS_DEBUG
             debugmsg += vformat("%c", (b >= 32 && b <= 126) ? b : '.');
 #endif
@@ -493,6 +492,15 @@ bool GPS::setup()
 {
     if (!didSerialInit) {
         int msglen = 0;
+
+#ifdef GNSS_MODEL
+        Serial.println("GNSS_MODEL is defined, skipping probe and using forced model");
+        // Skip probing entirely — use the forced model
+        if (gnssModel == GNSS_MODEL_UNKNOWN) {
+            gnssModel = GNSS_MODEL;
+            LOG_INFO("Forced GNSS model (skipping probe)");
+        }
+#else
         if (tx_gpio && gnssModel == GNSS_MODEL_UNKNOWN) {
             if (probeTries < GPS_PROBETRIES) {
                 gnssModel = probe(serialSpeeds[speedSelect]);
@@ -516,7 +524,7 @@ bool GPS::setup()
             }
 #endif
         }
-
+#endif // GNSS_MODEL
         if (gnssModel != GNSS_MODEL_UNKNOWN) {
             setConnected();
         } else {
@@ -1483,7 +1491,6 @@ GnssModel_t GPS::getProbeResponse(unsigned long timeout, const std::vector<ChipI
     while (millis() - start < timeout) {
         if (_serial_gps->available()) {
             char c = _serial_gps->read();
-
             // Add char to buffer if there's space
             if (responseLen < bufferSize - 1) {
                 response[responseLen++] = c;
@@ -1841,6 +1848,9 @@ bool GPS::whileActive()
     // First consume any chars that have piled up at the receiver
     while (_serial_gps->available() > 0) {
         int c = _serial_gps->read();
+        #ifdef GPS_DEBUG_NMEA
+            Serial1.write(c); // Echo GPS data to Serial1 for debugging (if enabled)
+        #endif
         UBXscratch[charsInBuf] = c;
 #ifdef GPS_DEBUG
         debugmsg += vformat("%c", (c >= 32 && c <= 126) ? c : '.');

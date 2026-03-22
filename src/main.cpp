@@ -38,6 +38,7 @@
 #include "target_specific.h"
 #include <memory>
 #include <utility>
+#include "LightTrackerGeofence.h"
 
 #ifdef ELECROW_ThinkNode_M5
 PCA9557 io(0x18, &Wire);
@@ -1577,6 +1578,23 @@ void scannerToSensorsMap(const std::unique_ptr<ScanI2CTwoWire> &i2cScanner, Scan
 void loop()
 {
     runASAP = false;
+
+    #ifdef DYNAMIC_REGION
+    // set the region code dynamically based on the GPS location
+    if (gpsStatus->getIsConnected() && gpsStatus->getHasLock()) {
+        meshtastic_Config_LoRaConfig_RegionCode current_gps_region_code = Lorawan_Geofence_position(gpsStatus->getLatitude()*1e-7, gpsStatus->getLongitude()*1e-7);
+        if (current_gps_region_code != config.lora.region){
+            Serial1.write("GPS has a lock and is connected, checking region code.\n");
+            Serial1.write("GPS suggests that we use region code: ");
+            Serial.println(current_gps_region_code);
+            config.lora.region = current_gps_region_code;
+            Serial1.write("region code set, is now: ");
+            Serial.println(config.lora.region);
+            Serial1.write("mesh service reloading config.\n");
+            service->reloadConfig(SEGMENT_CONFIG);
+        }
+    }
+    #endif
 
 #ifdef ARCH_ESP32
     esp32Loop();
