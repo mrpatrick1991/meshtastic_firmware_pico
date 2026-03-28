@@ -1,0 +1,73 @@
+# start of Meshtastic configure yaml
+channel_url: https://meshtastic.org/e/#CioSIGaEl8u-LH8QK73H4K3nc2FRY_isbghEmfAHpR0SxE4EKAEwAToCCCASGRj0AyALKAU4AUADSAFQFmgBdc38YUTIBgE
+config:
+  bluetooth:
+    enabled: true
+    fixedPin: 123456
+    mode: FIXED_PIN
+  device:
+    nodeInfoBroadcastSecs: 3600
+    role: TRACKER
+    tzdef: MST7MDT,M3.2.0/2:00:00,M11.1.0/2:00:00
+  display:
+    screenOnSecs: 600
+  lora:
+    bandwidth: 500
+    codingRate: 8
+    configOkToMqtt: true
+    hopLimit: 3
+    overrideFrequency: 903.95
+    region: US
+    spreadFactor: 11
+    sx126xRxBoostedGain: true
+    txEnabled: true
+    txPower: 22
+    usePreset: false
+  network:
+    ntpServer: meshtastic.pool.ntp.org
+  position:
+    broadcastSmartMinimumDistance: 100
+    broadcastSmartMinimumIntervalSecs: 300
+    gpsMode: ENABLED
+    gpsUpdateInterval: 10
+    positionBroadcastSecs: 10
+    positionBroadcastSmartEnabled: false
+    positionFlags: 811
+    rxGpio: 3
+    txGpio: 2
+  power:
+    lsSecs: 300
+    minWakeSecs: 10
+    sdsSecs: 4294967295
+    waitBluetoothSecs: 60
+  security:
+    privateKey: base64:WJQ3mQw+qtFvTfj81o+9rOX+w9k5EF2UobDsMsOv+Uc=
+    publicKey: base64:sx1B0u2hwo4d6gmCVPoZhOZvUsoeABkAU0rl1iN0qkU=
+    serialEnabled: true
+module_config:
+  ambientLighting:
+    blue: 43
+    current: 10
+    green: 75
+    red: 9
+  detectionSensor:
+    detectionTriggerType: LOGIC_HIGH
+    minimumBroadcastSecs: 45
+  mqtt:
+    address: mqtt.meshtastic.org
+    encryptionEnabled: true
+    password: large4cats
+    root: msh/UNSET
+    username: meshdev
+  serial:
+    enabled: true
+  telemetry:
+    deviceTelemetryEnabled: true
+    deviceUpdateInterval: 60
+    environmentMeasurementEnabled: true
+    environmentUpdateInterval: 60
+    powerMeasurementEnabled: true
+    powerUpdateInterval: 60
+owner: VE6AZX-14
+owner_short: "\U0001F6F0"
+

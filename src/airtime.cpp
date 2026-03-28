@@ -122,6 +122,9 @@ float AirTime::utilizationTXPercent()
 
 bool AirTime::isTxAllowedChannelUtil(bool polite)
 {
+    #ifdef OVERRIDE_CH_UTIL // this is bad, do not do it on the public channel. I'm just using it for trackers on private channels and only in US915 where there isn't a duty-cycle limit.
+        return true;
+    #else
     uint8_t percentage = (polite ? polite_channel_util_percent : max_channel_util_percent);
     if (channelUtilizationPercent() < percentage) {
         return true;
@@ -129,10 +132,14 @@ bool AirTime::isTxAllowedChannelUtil(bool polite)
         LOG_WARN("Ch. util >%d%%. Skip send", percentage);
         return false;
     }
+    #endif
 }
 
 bool AirTime::isTxAllowedAirUtil()
 {
+    #ifdef OVERRIDE_CH_UTIL // this is bad, do not do it on the public channel. I'm just using it for trackers on private channels and only in US915 where there isn't a duty-cycle limit.
+        return true;
+    #else
     if (!config.lora.override_duty_cycle && myRegion->dutyCycle < 100) {
         if (utilizationTXPercent() < myRegion->dutyCycle * polite_duty_cycle_percent / 100) {
             return true;
@@ -142,6 +149,7 @@ bool AirTime::isTxAllowedAirUtil()
         }
     }
     return true;
+    #endif
 }
 
 // Get the amount of minutes we have to be silent before we can send again

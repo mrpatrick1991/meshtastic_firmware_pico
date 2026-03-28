@@ -1,0 +1,81 @@
+# start of Meshtastic configure yaml
+canned_messages: Hi|Bye|Yes|No|Ok
+channel_url: https://meshtastic.org/e/#CioSIGaEl8u-LH8QK73H4K3nc2FRY_isbghEmfAHpR0SxE4EKAEwAToCCCASGRj0AyALKAU4AUADSAFQHmgBdc38YUTIBgE
+config:
+  bluetooth:
+    enabled: true
+    fixedPin: 123456
+  device:
+    nodeInfoBroadcastSecs: 10800
+    tzdef: MST7MDT,M3.2.0/2:00:00,M11.1.0/2:00:00
+  display:
+    screenOnSecs: 600
+  lora:
+    bandwidth: 500
+    codingRate: 8
+    configOkToMqtt: true
+    hopLimit: 3
+    overrideFrequency: 903.95
+    region: US
+    spreadFactor: 11
+    sx126xRxBoostedGain: true
+    txEnabled: true
+    txPower: 30
+    usePreset: false
+  network:
+    enabledProtocols: 1
+    wifiEnabled: true
+    wifiPsk: '64448282'
+    wifiSsid: manatee
+  position:
+    broadcastSmartMinimumDistance: 100
+    broadcastSmartMinimumIntervalSecs: 30
+    fixedPosition: true
+    gpsMode: NOT_PRESENT
+    gpsUpdateInterval: 120
+    positionBroadcastSecs: 3600
+    positionBroadcastSmartEnabled: false
+    positionFlags: 811
+  power:
+    lsSecs: 300
+    minWakeSecs: 10
+    sdsSecs: 4294967295
+    waitBluetoothSecs: 60
+  security:
+    privateKey: base64:cLVvBvbQXztzL+O3B+P/4PxMh91WOMo0xhtM/I+SvnM=
+    publicKey: base64:m5XqNtT9qeODAT63VwnnTfjCT5qby9IphyyIy54MZRI=
+    serialEnabled: true
+module_config:
+  ambientLighting:
+    blue: 92
+    current: 10
+    green: 218
+    red: 206
+  cannedMessage:
+    enabled: true
+  detectionSensor:
+    detectionTriggerType: LOGIC_HIGH
+    minimumBroadcastSecs: 45
+  mqtt:
+    address: mqtt.meshtastic.liamcottle.net
+    enabled: true
+    encryptionEnabled: true
+    mapReportSettings:
+      positionPrecision: 14
+      publishIntervalSecs: 3600
+      shouldReportLocation: true
+    mapReportingEnabled: true
+    password: uplink
+    root: msh/US
+    username: uplink
+  telemetry:
+    deviceTelemetryEnabled: true
+    deviceUpdateInterval: 3600
+    environmentMeasurementEnabled: true
+    environmentScreenEnabled: true
+    environmentUpdateInterval: 3600
+    powerMeasurementEnabled: true
+    powerUpdateInterval: 3600
+owner: VE6AZX-9
+owner_short: AZX9
+
